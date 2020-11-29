@@ -1,6 +1,7 @@
 import os
 import json
 import re
+from typing import Optional
 
 from django.conf import settings
 
@@ -20,13 +21,16 @@ def clean_file_key(filename: str) -> str:
 
 # Create a dictionary of keys that can be passed to the `static` template tag to load CRA assets
 # from Django's STATIC_ROOT directory
-def generate_manifest(cra_url: str, app_dir: str) -> dict:
+def generate_manifest(cra_url: str, app_dir: str, cra_server_url: Optional[str] = None) -> dict:
+    if cra_server_url is None:
+        cra_server_url = cra_url
     manifest = {}
 
     # The ability to access this file means the create-react-app liveserver is running
     bundle_path = '{}/static/js/bundle.js'.format(cra_url)
     # Check if Create-React-App live server is up and running
-    is_server_live = hosted_by_liveserver(bundle_path)
+    bundle_server_path = '{}/static/js/bundle.js'.format(cra_server_url)
+    is_server_live = hosted_by_liveserver(bundle_server_path)
 
     # Prepare references to various files frontend
     if is_server_live:

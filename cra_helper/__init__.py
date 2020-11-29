@@ -14,12 +14,23 @@ _host = _CRA_DEFAULT_HOST
 if hasattr(settings, 'CRA_PORT') and type(settings.CRA_PORT) is int:
     _port = settings.CRA_PORT
 
+# Allow the user to specify a different server-side port
+_server_port = _port
+if hasattr(settings, 'CRA_SERVER_PORT') and type(settings.CRA_SERVER_PORT) is int:
+    _server_port = settings.CRA_SERVER_PORT
+
 # Allow the user to specify the host create-react-app is running on
 if hasattr(settings, 'CRA_HOST'):
     _host = settings.CRA_HOST
 
+# Allow the user to specify a different server-side host
+_server_host = _host
+if hasattr(settings, 'CRA_SERVER_HOST'):
+    _server_host = settings.CRA_SERVER_HOST
+
 # The URL the create-react-app liveserver is accessible at
 CRA_URL = 'http://{}:{}'.format(_host, _port)
+CRA_SERVER_URL = 'http://{}:{}'.format(_server_host, _server_port)
 
 if hasattr(settings, 'CRA_APP_NAME'):
     CRA_APP_NAME = settings.CRA_APP_NAME
@@ -30,4 +41,4 @@ else:
 CRA_FS_APP_DIR = os.path.join(settings.BASE_DIR, CRA_APP_NAME)
 
 # A list of entries in CRA's build bundle's
-STATIC_ASSET_MANIFEST = generate_manifest(CRA_URL, CRA_FS_APP_DIR)
+STATIC_ASSET_MANIFEST = generate_manifest(CRA_URL, CRA_FS_APP_DIR, CRA_SERVER_URL)
