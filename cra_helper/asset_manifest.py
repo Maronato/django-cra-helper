@@ -1,7 +1,7 @@
 import os
 import json
 import re
-from typing import Optional
+from typing import Callable, Optional, Tuple
 
 from django.conf import settings
 
@@ -40,17 +40,19 @@ def generate_manifest(cra_url: str, app_dir: str, cra_server_url: Optional[str] 
             bundle_path,
         ]
 
-        # ...while more recent versions of CRA use code-splitting and serve additional files
-        liveserver_bundles = [
-            # These two files will alternate being loaded into the page
-            '{}/static/js/0.chunk.js'.format(cra_url),
-            '{}/static/js/1.chunk.js'.format(cra_url),
-            # This bundle seems to contain some vendor files
-            '{}/static/js/main.chunk.js'.format(cra_url)
-        ]
+        as_client_server_tuple: Callable[[str], Tuple[str, str]] = lambda url: (url.format(cra_url), url.format(cra_server_url))
 
-        for url in liveserver_bundles:
-            if hosted_by_liveserver(url):
+        # ...while more recent versions of CRA use code-splitting and serve additional files
+        liveserver_bundles = map(as_client_server_tuple, [
+            # These two files will alternate being loaded into the page
+            '{}/static/js/0.chunk.js',
+            '{}/static/js/1.chunk.js',
+            # This bundle seems to contain some vendor files
+            '{}/static/js/main.chunk.js',
+        ])
+
+        for url, server_url in liveserver_bundles:
+            if hosted_by_liveserver(server_url):
                 manifest['bundle_js'].append(url)
     else:
         logger.info('Create-React-App liveserver is not running')
